@@ -28,6 +28,12 @@ namespace Hospital.Data
                 .HasConversion(
                     v => v.ToString(),
                     v => (Spec)Enum.Parse(typeof(Spec), v));
+            modelBuilder.Entity<Doctor>()
+                .HasIndex(d => d.Login)
+                .IsUnique();
+            modelBuilder.Entity<Patient>()
+                .HasIndex(d => d.Login)
+                .IsUnique();
         }
     }
 }

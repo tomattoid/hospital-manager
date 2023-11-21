@@ -16,9 +16,13 @@ namespace Hospital.Models
     public class Doctor
     {
         public int Id { get; set; }
-        public string? Name { get; set; }
-        public string? Login { get; set; }
-        public string? Password { get; set; }
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public string Login { get; set; }
+        [Required, MinLength(8)]
+        public string Password { get; set; }
+        [Required]
         public Spec Specialty { get; set; }
         public bool IsAdmin { get; set; }
     }
