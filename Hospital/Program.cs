@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Hospital.Data;
+using Hospital.Models;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HospitalContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HospitalContext") ?? throw new InvalidOperationException("Connection string 'HospitalContext' not found.")));
@@ -9,6 +10,13 @@ builder.Services.AddDbContext<HospitalContext>(options =>
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    SeedData.Initialize(services);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
