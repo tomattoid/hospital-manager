@@ -11,10 +11,9 @@ namespace Hospital.Models
                 serviceProvider.GetRequiredService<
                     DbContextOptions<HospitalContext>>()))
             {
-                // Look for any movies.
                 if (context.Doctor.Any())
                 {
-                    return;   // DB has been seeded
+                    return;
                 }
 
                 context.Doctor.AddRange(
