@@ -21,7 +21,7 @@ namespace Hospital.Models
                     new Doctor
                     {
                         Name = "John Smith",
-                        Login = "johnsmith",
+                        Username = "johnsmith",
                         Password = "12345678",
                         Specialty = Spec.FamilyDoctor,
                         IsAdmin = true

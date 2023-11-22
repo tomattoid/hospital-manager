@@ -39,7 +39,7 @@ namespace Hospital.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
+                name: "Username",
                 table: "Patient",
                 type: "nvarchar(450)",
                 nullable: false,
@@ -69,7 +69,7 @@ namespace Hospital.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
+                name: "Username",
                 table: "Doctor",
                 type: "nvarchar(450)",
                 nullable: false,
@@ -79,15 +79,15 @@ namespace Hospital.Migrations
                 oldNullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Patient_Login",
+                name: "IX_Patient_Username",
                 table: "Patient",
-                column: "Login",
+                column: "Username",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Doctor_Login",
+                name: "IX_Doctor_Username",
                 table: "Doctor",
-                column: "Login",
+                column: "Username",
                 unique: true);
         }
 
@@ -95,11 +95,11 @@ namespace Hospital.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Patient_Login",
+                name: "IX_Patient_Username",
                 table: "Patient");
 
             migrationBuilder.DropIndex(
-                name: "IX_Doctor_Login",
+                name: "IX_Doctor_Username",
                 table: "Doctor");
 
             migrationBuilder.DropColumn(
@@ -123,7 +123,7 @@ namespace Hospital.Migrations
                 oldType: "nvarchar(max)");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
+                name: "Username",
                 table: "Patient",
                 type: "nvarchar(max)",
                 nullable: true,
@@ -147,7 +147,7 @@ namespace Hospital.Migrations
                 oldType: "nvarchar(max)");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
+                name: "Username",
                 table: "Doctor",
                 type: "nvarchar(max)",
                 nullable: true,

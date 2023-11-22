@@ -2,11 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Hospital.Data;
 using Hospital.Models;
+using Hospital.Services;
+
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HospitalContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HospitalContext") ?? throw new InvalidOperationException("Connection string 'HospitalContext' not found.")));
 
 // Add services to the container.
+builder.Services.AddSingleton<UserService>();
+builder.Services.AddSingleton<DoctorService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

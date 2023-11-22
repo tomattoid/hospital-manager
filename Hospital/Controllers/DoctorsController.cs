@@ -20,11 +20,17 @@ namespace Hospital.Controllers
         }
 
         // GET: Doctors
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-              return _context.Doctor != null ? 
-                          View(await _context.Doctor.ToListAsync()) :
-                          Problem("Entity set 'HospitalContext.Doctor'  is null.");
+            var doctors = from d in _context.Doctor
+                         select d;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                doctors = doctors.Where(s => s.Name!.Contains(searchString));
+            }
+
+            return View(await doctors.ToListAsync());
         }
 
         // GET: Doctors/Details/5
@@ -56,7 +62,7 @@ namespace Hospital.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Login,Password,Specialty,IsAdmin")] Doctor doctor)
+        public async Task<IActionResult> Create([Bind("Id,Name,Username,Password,Specialty,IsAdmin")] Doctor doctor)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +94,7 @@ namespace Hospital.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Login,Password,Specialty,IsAdmin")] Doctor doctor)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Username,Password,Specialty,IsAdmin")] Doctor doctor)
         {
             if (id != doctor.Id)
             {

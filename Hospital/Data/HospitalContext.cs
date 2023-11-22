@@ -29,10 +29,10 @@ namespace Hospital.Data
                     v => v.ToString(),
                     v => (Spec)Enum.Parse(typeof(Spec), v));
             modelBuilder.Entity<Doctor>()
-                .HasIndex(d => d.Login)
+                .HasIndex(d => d.Username)
                 .IsUnique();
             modelBuilder.Entity<Patient>()
-                .HasIndex(d => d.Login)
+                .HasIndex(d => d.Username)
                 .IsUnique();
         }
     }

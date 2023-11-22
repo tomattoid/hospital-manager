@@ -1,0 +1,16 @@
+﻿@model Hospital.Models.Patient
+
+<form asp-controller="LoginPatient" asp-action="Login" method="post">
+    <h1>Login as patient</h1>
+    <div>
+        <label asp-for="Username"></label>
+        <input asp-for="Username" />
+    </div>
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" />
+    </div>
+    <div>
+        <button type="submit">Login</button>
+    </div>
+</form>
