@@ -14,5 +14,6 @@ namespace Hospital.Models
         public DateTime EndTime { get; set; }
         public Patient? Patient { get; set; }
         public bool IsAvailable { get; set; }
+        public DayOfWeek DayOfWeek { get; set; }
     }
 }

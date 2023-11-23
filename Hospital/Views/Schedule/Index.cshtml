@@ -2,37 +2,89 @@
 
 <h1>Schedule</h1>
 
-<table class="table">
-    <tbody>
-        @foreach (var timeSlot in Model.TimeSlots)
-        {
-            <tr>
-                <td>
-                    @if (timeSlot.IsAvailable)
-                    {
-                        <form asp-controller="Schedule" asp-action="Schedule" method="post">
-                            <input type="hidden" name="timeSlotId" value="@timeSlot.Id" />
-                            <select name="doctorId">
-                                @foreach (var doctor in Model.Doctors)
+@{
+    var daysOfWeek = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>();
+}
+
+@foreach (var dayOfWeek in daysOfWeek)
+{
+    var dayTimeSlots = Model.TimeSlots.Where(ts => ts.DayOfWeek == dayOfWeek).ToList();
+
+    if (dayTimeSlots.Any())
+    {
+        <h2>@dayOfWeek.ToString()</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Start Time</th>
+                    <th>Doctor</th>
+                    <th>Patient</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var timeSlot in dayTimeSlots)
+                {
+                    <tr>
+                        <td>@timeSlot.StartTime.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            @if (timeSlot.StartTime.Minute == 0)
+                            {
+                                @if (timeSlot.DoctorOnDuty != null)
                                 {
-                                    <option value="@doctor.Id">@doctor.Name</option>
+                                    @timeSlot.DoctorOnDuty.Name
                                 }
-                            </select>
-                            <select name="patientId">
-                                @foreach (var patient in Model.Patients)
+                                else
                                 {
-                                    <option value="@patient.Id">@patient.Name</option>
+                                    <label>Doctor:</label>
+                                    <form asp-controller="Schedule" asp-action="Schedule" method="post">
+                                        <input type="hidden" name="timeSlotId" value="@timeSlot.Id" />
+                                        <select name="doctorId">
+                                            <option value="">Select Doctor</option>
+                                            @foreach (var doctor in Model.Doctors)
+                                            {
+                                                <option value="@doctor.Id">@doctor.Name</option>
+                                            }
+                                        </select>
+                                        <button type="submit">Schedule</button>
+                                    </form>
                                 }
-                            </select>
-                            <button type="submit">Schedule</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span>Occupied</span>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                            }
+                        </td>
+                        <td>
+                            @if (timeSlot.Patient != null)
+                            {
+                                @timeSlot.Patient.Name
+                            }
+                            else
+                            {
+                                <label>Patient:</label>
+                                <form asp-controller="Schedule" asp-action="Schedule" method="post">
+                                    <input type="hidden" name="timeSlotId" value="@timeSlot.Id" />
+                                    <select name="patientId">
+                                        <option value="">------</option>
+                                        @foreach (var patient in Model.Patients)
+                                        {
+                                            <option value="@patient.Id">@patient.Name</option>
+                                        }
+                                    </select>
+                                    <button type="submit">Schedule</button>
+                                </form>
+                            }
+                        </td>
+                        <td>
+                            @if (timeSlot.IsAvailable)
+                            {
+                                <span></span>
+                            }
+                            else
+                            {
+                                <span>Occupied</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

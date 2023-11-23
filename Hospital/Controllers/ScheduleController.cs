@@ -18,16 +18,21 @@ public class ScheduleController : Controller
             GenerateTimeSlotsForCurrentWeek();
         }
 
-        var currentWeekTimeSlots = GetCurrentWeekTimeSlots();
+        var currentDate = DateTime.Now.Date;
+        var startDate = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)DayOfWeek.Monday);
+        var endDate = startDate.AddDays(7);
 
-        var doctors = _context.Doctor.ToList();
-        var patients = _context.Patient.ToList();
+        var currentWeekTimeSlots = _context.TimeSlot
+            .Where(ts => ts.StartTime >= startDate && ts.StartTime < endDate)
+            .OrderBy(ts => ts.DayOfWeek)
+            .ThenBy(ts => ts.StartTime)
+            .ToList();
 
         var viewModel = new ScheduleViewModel
         {
             TimeSlots = currentWeekTimeSlots,
-            Doctors = doctors,
-            Patients = patients
+            Doctors = _context.Doctor.ToList(),
+            Patients = _context.Patient.ToList()
         };
 
         return View(viewModel);
@@ -45,7 +50,10 @@ public class ScheduleController : Controller
 
             timeSlot.DoctorOnDuty = doctor;
             timeSlot.Patient = patient;
-            timeSlot.IsAvailable = false;
+            if (patient != null)
+            {
+                timeSlot.IsAvailable = false;
+            }
 
             _context.SaveChanges();
         }
@@ -56,27 +64,29 @@ public class ScheduleController : Controller
     private void GenerateTimeSlotsForCurrentWeek()
     {
         var currentDate = DateTime.Now.Date;
-        var endDate = currentDate.AddDays(7);
+        var startDate = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)DayOfWeek.Monday);
+        var endDate = startDate.AddDays(7);
 
-        while (currentDate < endDate)
+        while (startDate < endDate)
         {
             for (int i = 0; i < 96; i++)
             {
-                var startTime = currentDate.AddMinutes(i * 15);
+                var startTime = startDate.AddMinutes(i * 15);
                 var endTime = startTime.AddMinutes(15);
 
                 var timeSlot = new TimeSlot
                 {
-                    StartTime = startTime,
+                    Date = startDate,
                     EndTime = endTime,
+                    StartTime = startTime,
                     IsAvailable = true,
-                    Date = currentDate
+                    DayOfWeek = startTime.DayOfWeek
                 };
 
                 _context.TimeSlot.Add(timeSlot);
             }
 
-            currentDate = currentDate.AddDays(1);
+            startDate = startDate.AddDays(1);
         }
 
         _context.SaveChanges();
