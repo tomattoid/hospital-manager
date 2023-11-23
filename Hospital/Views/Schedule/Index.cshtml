@@ -1,0 +1,38 @@
+﻿@model Hospital.Models.ScheduleViewModel
+
+<h1>Schedule</h1>
+
+<table class="table">
+    <tbody>
+        @foreach (var timeSlot in Model.TimeSlots)
+        {
+            <tr>
+                <td>
+                    @if (timeSlot.IsAvailable)
+                    {
+                        <form asp-controller="Schedule" asp-action="Schedule" method="post">
+                            <input type="hidden" name="timeSlotId" value="@timeSlot.Id" />
+                            <select name="doctorId">
+                                @foreach (var doctor in Model.Doctors)
+                                {
+                                    <option value="@doctor.Id">@doctor.Name</option>
+                                }
+                            </select>
+                            <select name="patientId">
+                                @foreach (var patient in Model.Patients)
+                                {
+                                    <option value="@patient.Id">@patient.Name</option>
+                                }
+                            </select>
+                            <button type="submit">Schedule</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span>Occupied</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

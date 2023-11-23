@@ -1,22 +1,18 @@
 ﻿using Hospital.Data;
 using Hospital.Models;
-using Hospital.Services;
 using Hospital.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 
 namespace Hospital.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly DoctorService _doctorService;
-        private readonly UserService _userService;
         private readonly HospitalContext _context;
 
-        public AccountController(DoctorService doctorService, UserService userService, HospitalContext context)
+        public AccountController(HospitalContext context)
         {
-            _doctorService = doctorService;
-            _userService = userService;
             _context = context;
         }
 
@@ -33,9 +29,10 @@ namespace Hospital.Controllers
         [HttpPost]
         public IActionResult LoginDoctor(Doctor doctor)
         {
-            if (_doctorService.IsValidUser(doctor.Username, doctor.Password))
+            var user = _context.Doctor.FirstOrDefault(u => u.Username == doctor.Username);
+            if (user != null && doctor.Password == user.Password)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Admin");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt");
@@ -44,7 +41,8 @@ namespace Hospital.Controllers
         [HttpPost]
         public IActionResult LoginPatient(Patient patient)
         {
-            if (_doctorService.IsValidUser(patient.Username, patient.Password))
+            var user = _context.Patient.FirstOrDefault(u => u.Username == patient.Username);
+            if (user != null && patient.Password == user.Password)
             {
                 return RedirectToAction("Index", "Home");
             }

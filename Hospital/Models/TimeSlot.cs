@@ -5,8 +5,7 @@ namespace Hospital.Models
     public class TimeSlot
     {
         public int Id { get; set; }
-        [Required]
-        public Doctor DoctorOnDuty { get; set; }
+        public Doctor? DoctorOnDuty { get; set; }
         [Required, DataType(DataType.Date)]
         public DateTime Date { get; set; }
         [Required, DataType(DataType.Time)]
@@ -14,5 +13,6 @@ namespace Hospital.Models
         [Required, DataType(DataType.Time)]
         public DateTime EndTime { get; set; }
         public Patient? Patient { get; set; }
+        public bool IsAvailable { get; set; }
     }
 }
