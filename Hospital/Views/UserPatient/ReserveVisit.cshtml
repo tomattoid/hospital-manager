@@ -1,0 +1,45 @@
+﻿@model Hospital.Models.ReserveVisitViewModel
+
+<h2>Reserve a Visit</h2>
+
+<form asp-action="ReserveVisit" method="post">
+    <label for="SelectedSpecialty">Search by Doctor's Specialty:</label>
+    @Html.DropDownListFor(m => m.SelectedSpecialty, Model.Specialties, "All Specialties")
+    <button type="submit">Search</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Doctor</th>
+            <th>Action</th>
+            <!-- Add more columns as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var timeSlot in Model.AvailableTimeSlots)
+        {
+            <tr>
+                <td>@timeSlot.Date.ToShortDateString()</td>
+                <td>@timeSlot.StartTime.ToShortTimeString()</td>
+                <td>@timeSlot.DoctorOnDuty.Name</td>
+                <td>
+                    @if (timeSlot.Patient == null)
+                    {
+                        <form asp-action="ReserveTimeSlot" method="post">
+                            <input type="hidden" name="timeSlotId" value="@timeSlot.Id" />
+                            <button type="submit">Reserve</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span>Reserved</span>
+                    }
+                </td>
+                <!-- Add more columns as needed -->
+            </tr>
+        }
+    </tbody>
+</table>

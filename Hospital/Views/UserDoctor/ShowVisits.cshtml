@@ -1,0 +1,28 @@
+﻿@model List<Hospital.Models.ShowVisitsViewModel>
+
+<h2>Doctor's Reserved Time Slots</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Patient</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reservation in Model)
+        {
+            <tr>
+                <td>@reservation.Date.ToShortDateString()</td>
+                <td>@reservation.Time</td>
+                <td>@reservation.PersonName</td>
+                <td>@reservation.Description</td>
+                <td>
+                    <a asp-controller="UserDoctor" asp-action="Edit" asp-route-TimeSlotId="@reservation.TimeSlotId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

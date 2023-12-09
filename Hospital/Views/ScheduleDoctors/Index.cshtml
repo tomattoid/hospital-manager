@@ -51,7 +51,7 @@
                         }
 
                         <!-- Alert for no doctors on duty -->
-                        @if (doctorsOnDuty == null || !doctorsOnDuty.Any())
+                        @if (timeSlot == null)
                         {
                             <div class="alert alert-danger" role="alert">
                                 No doctors on duty in this hour.

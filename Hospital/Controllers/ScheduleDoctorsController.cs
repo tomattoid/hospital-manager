@@ -18,7 +18,7 @@ public class ScheduleDoctorsController : Controller
         var viewModel = new ScheduleDoctorsViewModel
         {
             TimeSlots = timeSlots,
-            Doctors = _context.Doctor.ToList() // Retrieve all doctors from the database
+            Doctors = _context.Doctor.ToList()
         };
 
         return View(viewModel);
@@ -65,8 +65,8 @@ public class ScheduleDoctorsController : Controller
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    var startTime = startDate.AddMinutes(i * 15);
-                    var endTime = startTime.AddMinutes(15);
+                    var startTime = startDate.AddMinutes(i * 15).AddHours(hour);
+                    var endTime = startTime.AddMinutes(15).AddHours(hour);
 
                     timeSlot = new TimeSlot
                     {

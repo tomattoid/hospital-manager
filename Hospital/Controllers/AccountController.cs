@@ -1,5 +1,6 @@
 ﻿using Hospital.Data;
 using Hospital.Models;
+using Hospital.Services;
 using Hospital.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,15 @@ namespace Hospital.Controllers
 {
     public class AccountController : Controller
     {
+        public Patient? loggedPatient { get; set;}
+        public Doctor? loggedDoctor { get; set;}
         private readonly HospitalContext _context;
+        private readonly IAccountService _accountService;
 
-        public AccountController(HospitalContext context)
+        public AccountController(HospitalContext context, IAccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
 
         [HttpGet]
@@ -30,9 +35,17 @@ namespace Hospital.Controllers
         public IActionResult LoginDoctor(Doctor doctor)
         {
             var user = _context.Doctor.FirstOrDefault(u => u.Username == doctor.Username);
-            if (user != null && doctor.Password == user.Password)
+            if (user != null && doctor.Password == user.Password && user.IsAdmin)
             {
+                loggedDoctor = user;
+                _accountService.DoctorId = user.Id;
                 return RedirectToAction("Index", "Admin");
+            }
+            else if (user != null && doctor.Password == user.Password && !doctor.IsAdmin)
+            {
+                loggedDoctor = user;
+                _accountService.DoctorId = user.Id;
+                return RedirectToAction("Index", "UserDoctor");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt");
@@ -44,9 +57,10 @@ namespace Hospital.Controllers
             var user = _context.Patient.FirstOrDefault(u => u.Username == patient.Username);
             if (user != null && patient.Password == user.Password)
             {
-                return RedirectToAction("Index", "Home");
+                loggedPatient = user;
+                _accountService.PatientId = user.Id;
+                return RedirectToAction("Index", "UserPatient");
             }
-
             ModelState.AddModelError(string.Empty, "Invalid login attempt");
             return View(patient);
         }

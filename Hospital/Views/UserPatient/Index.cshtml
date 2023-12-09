@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="text-center">
+    <h1>Choose an option:</h1>
+
+    <div class="btn-group" role="group" aria-label="User Options">
+        <a href="@Url.Action("ShowVisits", "UserPatient")" class="btn btn-secondary btn-lg">Show visits</a>
+        <a href="@Url.Action("ReserveVisit", "UserPatient")" class="btn btn-secondary btn-lg">Reserve visit</a>
+    </div>
+</div>
