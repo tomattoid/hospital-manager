@@ -1,0 +1,65 @@
+﻿@model Hospital.Models.ScheduleDoctorsViewModel
+
+<h1>Schedule Doctors</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+            <th>Sunday</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hour in Enumerable.Range(0, 24))
+        {
+            <tr>
+                <td>@hour:00 - @(hour + 1):00</td>
+                @foreach (var dayOfWeek in Enum.GetValues(typeof(Hospital.Models.DayOfWeek)).Cast<Hospital.Models.DayOfWeek>())
+                {
+                    var timeSlot = Model.TimeSlots?.FirstOrDefault(ts => ts.DayOfWeek == dayOfWeek && ts.StartTime.Hour == hour);
+                    var doctorsOnDuty = Model.TimeSlots?.Where(ts => ts.DayOfWeek == dayOfWeek && ts.StartTime.Hour == hour && ts.DoctorOnDuty != null);
+
+                    <td>
+                        <form asp-controller="ScheduleDoctors" asp-action="Schedule" method="post">
+                            <input type="hidden" name="dayOfWeek" value="@dayOfWeek" />
+                            <input type="hidden" name="hour" value="@hour" />
+                            <select name="doctorId">
+                                <option value="">Select Doctor</option>
+                                @foreach (var doctor in Model.Doctors)
+                                {
+                                    <option value="@doctor.Id">@doctor.Name</option>
+                                }
+                            </select>
+                            <button type="submit">Add</button>
+                        </form>
+
+                        <!-- View button -->
+                        @if (timeSlot != null && timeSlot.DoctorOnDuty != null)
+                        {
+                            <form asp-controller="ScheduleDoctors" asp-action="View" method="post">
+                                <input type="hidden" name="dayOfWeek" value="@dayOfWeek" />
+                                <input type="hidden" name="Date" value="@timeSlot.Date" />
+                                <input type="hidden" name="hour" value="@hour" />
+                                <button type="submit">View</button>
+                            </form>
+                        }
+
+                        <!-- Alert for no doctors on duty -->
+                        @if (doctorsOnDuty == null || !doctorsOnDuty.Any())
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                No doctors on duty in this hour.
+                            </div>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

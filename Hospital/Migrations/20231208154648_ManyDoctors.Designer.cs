@@ -4,6 +4,7 @@ using Hospital.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.Migrations
 {
     [DbContext(typeof(HospitalContext))]
-    partial class HospitalContextModelSnapshot : ModelSnapshot
+    [Migration("20231208154648_ManyDoctors")]
+    partial class ManyDoctors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,11 +48,16 @@ namespace Hospital.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TimeSlotId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TimeSlotId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -99,11 +107,11 @@ namespace Hospital.Migrations
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DoctorOnDutyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("PatientId")
                         .HasColumnType("int");
@@ -113,26 +121,30 @@ namespace Hospital.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DoctorOnDutyId");
-
                     b.HasIndex("PatientId");
 
                     b.ToTable("TimeSlot");
                 });
 
+            modelBuilder.Entity("Hospital.Models.Doctor", b =>
+                {
+                    b.HasOne("Hospital.Models.TimeSlot", null)
+                        .WithMany("DoctorsOnDuty")
+                        .HasForeignKey("TimeSlotId");
+                });
+
             modelBuilder.Entity("Hospital.Models.TimeSlot", b =>
                 {
-                    b.HasOne("Hospital.Models.Doctor", "DoctorOnDuty")
-                        .WithMany()
-                        .HasForeignKey("DoctorOnDutyId");
-
                     b.HasOne("Hospital.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId");
 
-                    b.Navigation("DoctorOnDuty");
-
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Hospital.Models.TimeSlot", b =>
+                {
+                    b.Navigation("DoctorsOnDuty");
                 });
 #pragma warning restore 612, 618
         }

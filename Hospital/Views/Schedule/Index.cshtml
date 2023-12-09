@@ -3,7 +3,7 @@
 <h1>Schedule</h1>
 
 @{
-    var daysOfWeek = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>();
+    var daysOfWeek = Enum.GetValues(typeof(Hospital.Models.DayOfWeek)).Cast<Hospital.Models.DayOfWeek>();
 }
 
 @foreach (var dayOfWeek in daysOfWeek)
@@ -32,7 +32,7 @@
                             {
                                 @if (timeSlot.DoctorOnDuty != null)
                                 {
-                                    @timeSlot.DoctorOnDuty.Name
+                                        @timeSlot.DoctorOnDuty.Name;
                                 }
                                 else
                                 {
@@ -73,14 +73,7 @@
                             }
                         </td>
                         <td>
-                            @if (timeSlot.IsAvailable)
-                            {
-                                <span></span>
-                            }
-                            else
-                            {
                                 <span>Occupied</span>
-                            }
                         </td>
                     </tr>
                 }

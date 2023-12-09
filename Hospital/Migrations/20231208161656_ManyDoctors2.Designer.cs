@@ -4,6 +4,7 @@ using Hospital.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.Migrations
 {
     [DbContext(typeof(HospitalContext))]
-    partial class HospitalContextModelSnapshot : ModelSnapshot
+    [Migration("20231208161656_ManyDoctors2")]
+    partial class ManyDoctors2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace Hospital.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DoctorTimeSlot", b =>
+                {
+                    b.Property<int>("DoctorsOnDutyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TimeSlotsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DoctorsOnDutyId", "TimeSlotsId");
+
+                    b.HasIndex("TimeSlotsId");
+
+                    b.ToTable("DoctorTimeSlot");
+                });
 
             modelBuilder.Entity("Hospital.Models.Doctor", b =>
                 {
@@ -99,11 +117,11 @@ namespace Hospital.Migrations
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DoctorOnDutyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("PatientId")
                         .HasColumnType("int");
@@ -113,24 +131,31 @@ namespace Hospital.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DoctorOnDutyId");
-
                     b.HasIndex("PatientId");
 
                     b.ToTable("TimeSlot");
                 });
 
+            modelBuilder.Entity("DoctorTimeSlot", b =>
+                {
+                    b.HasOne("Hospital.Models.Doctor", null)
+                        .WithMany()
+                        .HasForeignKey("DoctorsOnDutyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Models.TimeSlot", null)
+                        .WithMany()
+                        .HasForeignKey("TimeSlotsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Hospital.Models.TimeSlot", b =>
                 {
-                    b.HasOne("Hospital.Models.Doctor", "DoctorOnDuty")
-                        .WithMany()
-                        .HasForeignKey("DoctorOnDutyId");
-
                     b.HasOne("Hospital.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId");
-
-                    b.Navigation("DoctorOnDuty");
 
                     b.Navigation("Patient");
                 });

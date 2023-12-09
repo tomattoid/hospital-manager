@@ -20,17 +20,11 @@ namespace Hospital.Controllers
         }
 
         // GET: Doctors
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index()
         {
-            var doctors = from d in _context.Doctor
-                         select d;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                doctors = doctors.Where(s => s.Name!.Contains(searchString));
-            }
-
-            return View(await doctors.ToListAsync());
+              return _context.Doctor != null ? 
+                          View(await _context.Doctor.ToListAsync()) :
+                          Problem("Entity set 'HospitalContext.Doctor'  is null.");
         }
 
         // GET: Doctors/Details/5

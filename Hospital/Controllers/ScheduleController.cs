@@ -13,20 +13,13 @@ public class ScheduleController : Controller
 
     public IActionResult Index()
     {
-        if (!_context.TimeSlot.Any())
+        var currentWeekTimeSlots = GetCurrentWeekTimeSlots();
+
+        if (currentWeekTimeSlots is null || currentWeekTimeSlots.Count == 0)
         {
             GenerateTimeSlotsForCurrentWeek();
+            currentWeekTimeSlots = GetCurrentWeekTimeSlots();
         }
-
-        var currentDate = DateTime.Now.Date;
-        var startDate = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)DayOfWeek.Monday);
-        var endDate = startDate.AddDays(7);
-
-        var currentWeekTimeSlots = _context.TimeSlot
-            .Where(ts => ts.StartTime >= startDate && ts.StartTime < endDate)
-            .OrderBy(ts => ts.DayOfWeek)
-            .ThenBy(ts => ts.StartTime)
-            .ToList();
 
         var viewModel = new ScheduleViewModel
         {
@@ -43,28 +36,35 @@ public class ScheduleController : Controller
     {
         var timeSlot = _context.TimeSlot.Find(timeSlotId);
 
-        if (timeSlot != null && timeSlot.IsAvailable)
+        if (timeSlot != null && timeSlot.Patient == null)
         {
             var doctor = _context.Doctor.Find(doctorId);
             var patient = _context.Patient.Find(patientId);
 
             timeSlot.DoctorOnDuty = doctor;
             timeSlot.Patient = patient;
-            if (patient != null)
-            {
-                timeSlot.IsAvailable = false;
-            }
-
             _context.SaveChanges();
         }
 
         return RedirectToAction("Index");
     }
 
+    public List<TimeSlot> GetTimeSlotsForDay(Hospital.Models.DayOfWeek dayOfWeek)
+    {
+        var currentDate = DateTime.Now.Date;
+        var startDate = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)Hospital.Models.DayOfWeek.Monday);
+        var endDate = startDate.AddDays(7);
+
+        return _context.TimeSlot
+            .Where(ts => ts.StartTime >= startDate && ts.StartTime < endDate && ts.DayOfWeek == dayOfWeek)
+            .OrderBy(ts => ts.StartTime)
+            .ToList();
+    }
+
     private void GenerateTimeSlotsForCurrentWeek()
     {
         var currentDate = DateTime.Now.Date;
-        var startDate = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)DayOfWeek.Monday);
+        var startDate = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)Hospital.Models.DayOfWeek.Monday);
         var endDate = startDate.AddDays(7);
 
         while (startDate < endDate)
@@ -79,8 +79,7 @@ public class ScheduleController : Controller
                     Date = startDate,
                     EndTime = endTime,
                     StartTime = startTime,
-                    IsAvailable = true,
-                    DayOfWeek = startTime.DayOfWeek
+                    DayOfWeek = (Hospital.Models.DayOfWeek)startTime.DayOfWeek
                 };
 
                 _context.TimeSlot.Add(timeSlot);
@@ -95,10 +94,15 @@ public class ScheduleController : Controller
     private List<TimeSlot> GetCurrentWeekTimeSlots()
     {
         var currentDate = DateTime.Now.Date;
-        var endDate = currentDate.AddDays(7);
+        var startDate = currentDate.AddDays(-(int)(Hospital.Models.DayOfWeek)currentDate.DayOfWeek + (int)Hospital.Models.DayOfWeek.Monday);
+        var endDate = startDate.AddDays(7);
 
-        return _context.TimeSlot
-            .Where(ts => ts.StartTime >= currentDate && ts.StartTime < endDate)
+        var currentWeekTimeSlots = _context.TimeSlot
+            .Where(ts => ts.StartTime >= startDate && ts.StartTime < endDate)
+            .OrderBy(ts => ts.DayOfWeek)
+            .ThenBy(ts => ts.StartTime)
             .ToList();
+
+        return currentWeekTimeSlots;
     }
 }
