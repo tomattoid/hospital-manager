@@ -2,7 +2,7 @@
 
 <h2>Reserve a Visit</h2>
 
-<form asp-action="ReserveVisit" method="post">
+<form asp-controller="UserPatient" asp-action="ReserveVisit" method="post">
     <label for="SelectedSpecialty">Search by Doctor's Specialty:</label>
     @Html.DropDownListFor(m => m.SelectedSpecialty, Model.Specialties, "All Specialties")
     <button type="submit">Search</button>
@@ -15,7 +15,6 @@
             <th>Time</th>
             <th>Doctor</th>
             <th>Action</th>
-            <!-- Add more columns as needed -->
         </tr>
     </thead>
     <tbody>
@@ -28,17 +27,24 @@
                 <td>
                     @if (timeSlot.Patient == null)
                     {
-                        <form asp-action="ReserveTimeSlot" method="post">
-                            <input type="hidden" name="timeSlotId" value="@timeSlot.Id" />
+                        var version = string.Join(" ", timeSlot.Version.Select(b => b.ToString()));
+                        <form asp-controller="UserPatient" asp-action="ReserveTimeSlot" method="post">
+                            <input type="hidden" name="updatedTimeSlotId" value="@timeSlot.Id" />
+                            <input type="hidden" name="versionStr" value="@version" />
                             <button type="submit">Reserve</button>
                         </form>
+                        @if (ViewData["ConcurrencyError"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                @ViewData["ConcurrencyError"]
+                            </div>
+                        }
                     }
                     else
                     {
                         <span>Reserved</span>
                     }
                 </td>
-                <!-- Add more columns as needed -->
             </tr>
         }
     </tbody>

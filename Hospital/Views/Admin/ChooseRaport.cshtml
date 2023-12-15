@@ -1,0 +1,15 @@
+﻿@model Hospital.Models.DoctorStatisticsViewModel
+
+<h2>Generate Reports</h2>
+
+<form asp-controller="Admin" asp-action="GenerateReport" method="post">
+    <div class="form-group">
+        <label>Select Doctor:</label>
+        @Html.DropDownList("doctorId", ViewBag.Doctors as SelectList, "Select a Doctor", new { @class = "form-control" })
+    </div>
+    <div class="form-group">
+        <label>Select Date:</label>
+        <input type="date" name="selectedDate" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Generate Report</button>
+</form>

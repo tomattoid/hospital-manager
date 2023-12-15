@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class ScheduleDoctorsController : Controller
 {
+
     private readonly HospitalContext _context;
     public ScheduleDoctorsController(HospitalContext context)
     {
@@ -23,12 +24,41 @@ public class ScheduleDoctorsController : Controller
 
         return View(viewModel);
     }
+    public IActionResult CopyScheduleFromPreviousWeek()
+    {
+        Hospital.Models.DayOfWeek currentDayOfWeek = DateTime.Now.DayOfWeek - 1 >= 0 ? (Hospital.Models.DayOfWeek)(int)(DateTime.Now.DayOfWeek - 1) : Hospital.Models.DayOfWeek.Sunday;
+        DateTime currentWeekStartDate = DateTime.Today.AddDays(-(int)currentDayOfWeek);
+        DateTime previousWeekStartDate = currentWeekStartDate.AddDays(-7);
+
+        var previousWeekSchedule = _context.TimeSlot
+            .Include(ts => ts.DoctorOnDuty)
+            .Where(ts => ts.Date >= previousWeekStartDate && ts.Date < currentWeekStartDate)
+            .ToList();
+
+        foreach (var timeSlot in previousWeekSchedule)
+        {
+            var newTimeSlot = new TimeSlot
+            {
+                DoctorOnDuty = timeSlot.DoctorOnDuty,
+                Date = timeSlot.Date.AddDays(7), 
+                StartTime = timeSlot.StartTime.AddDays(7),
+                EndTime = timeSlot.EndTime.AddDays(7),
+                DayOfWeek = timeSlot.DayOfWeek,
+            };
+
+            _context.TimeSlot.Add(newTimeSlot);
+        }
+
+        _context.SaveChanges();
+
+        return RedirectToAction("Index");
+    }
 
     [HttpPost]
     public IActionResult View(Hospital.Models.DayOfWeek dayOfWeek, DateTime date, int hour)
     {
         var uniqueDoctorNames = _context.TimeSlot
-            .Where(ts => ts.StartTime.Hour == hour && ts.DoctorOnDuty != null)
+            .Where(ts => ts.StartTime.Hour == hour && ts.DoctorOnDuty != null && ts.Date == date)
             .Select(ts => ts.DoctorOnDuty.Name)
             .Distinct()
             .ToList();
@@ -66,7 +96,7 @@ public class ScheduleDoctorsController : Controller
                 for (int i = 0; i < 4; i++)
                 {
                     var startTime = startDate.AddMinutes(i * 15).AddHours(hour);
-                    var endTime = startTime.AddMinutes(15).AddHours(hour);
+                    var endTime = startTime.AddMinutes(15);
 
                     timeSlot = new TimeSlot
                     {

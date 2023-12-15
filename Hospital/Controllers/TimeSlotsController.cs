@@ -56,7 +56,7 @@ namespace Hospital.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Date,StartTime,EndTime,DayOfWeek,Description")] TimeSlot timeSlot)
+        public async Task<IActionResult> Create([Bind("Id,Date,StartTime,EndTime,DayOfWeek,Description,Version")] TimeSlot timeSlot)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +88,7 @@ namespace Hospital.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Date,StartTime,EndTime,DayOfWeek,Description")] TimeSlot timeSlot)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Date,StartTime,EndTime,DayOfWeek,Description,Version")] TimeSlot timeSlot)
         {
             if (id != timeSlot.Id)
             {

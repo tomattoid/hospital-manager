@@ -1,0 +1,21 @@
+﻿<!-- Views/Reports/GenerateReport.cshtml -->
+@model Hospital.Models.DoctorStatisticsViewModel
+
+<h2>Doctor Report</h2>
+
+@if (Model != null)
+{
+    <h3>@Model.Doctor.Name - @Model.NumberOfVisits Visits</h3>
+
+    <h4>Duty Hours:</h4>
+    <ul>
+        @foreach (var timeSlot in Model.DutyHours)
+        {
+            <li>@timeSlot.StartTime.ToString("hh:mm tt") - @timeSlot.EndTime.ToString("hh:mm tt")</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No report available.</p>
+}

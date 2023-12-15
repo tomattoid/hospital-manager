@@ -25,5 +25,7 @@ namespace Hospital.Models
         public Patient? Patient { get; set; }
         public DayOfWeek DayOfWeek { get; set; }
         public string? Description { get; set; }
+        [Timestamp]
+        public byte[] Version { get; set; }
     }
 }

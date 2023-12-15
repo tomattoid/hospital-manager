@@ -61,7 +61,6 @@ namespace Hospital.Controllers
         [HttpPost]
         public IActionResult ReserveVisit(ReserveVisitViewModel viewModel)
         {
-            // Handle the search based on the selected specialty
             var filteredTimeSlots = _context.TimeSlot
                 .Include(ts => ts.DoctorOnDuty)
                 .Where(ts => ts.Patient == null &&
@@ -70,7 +69,6 @@ namespace Hospital.Controllers
 
             viewModel.AvailableTimeSlots = filteredTimeSlots;
 
-            // Populate specialties again for the dropdown
             viewModel.Specialties = Enum.GetValues(typeof(Spec))
                 .Cast<Spec>()
                 .Select(s => new SelectListItem { Value = s.ToString(), Text = s.ToString() })
@@ -80,30 +78,59 @@ namespace Hospital.Controllers
         }
 
         [HttpPost]
-        public IActionResult ReserveTimeSlot(int timeSlotId)
+        public IActionResult ReserveTimeSlot(int updatedTimeSlotId, string versionStr)
         {
-            var timeSlot = _context.TimeSlot.Find(timeSlotId);
+            string[] numberStrings = versionStr.Split(' ');
+            byte[] version = numberStrings.Select(s => byte.Parse(s)).ToArray();
 
-            if (timeSlot != null && timeSlot.Patient == null)
+            if (updatedTimeSlotId == null)
             {
-                // Set the time slot as reserved and associate it with the logged-in patient
-                var loggedInPatient = _context.Patient.FirstOrDefault(p => p.Id == _accountService.PatientId);
-
-                if (loggedInPatient != null)
-                {
-                    timeSlot.Patient = loggedInPatient;
-
-                    _context.SaveChanges();
-
-                    // Optionally, redirect to a confirmation page or refresh the view
-                    return RedirectToAction("ReserveVisit");
-                }
+                return RedirectToAction("ReserveVisit");
             }
 
-            // Handle the case where the reservation fails (e.g., time slot not available)
-            // You can add error messages or redirect to an error page as needed
+            var existingTimeSlot = _context.TimeSlot.Find(updatedTimeSlotId);
+            var updatedTimeSlot = new TimeSlot
+            {
+                StartTime = existingTimeSlot.StartTime,
+                EndTime = existingTimeSlot.EndTime,
+                Date = existingTimeSlot.Date,
+                DoctorOnDuty = existingTimeSlot.DoctorOnDuty,
+                DayOfWeek = existingTimeSlot.DayOfWeek,
+                Version = version
+            };
+
+            if (existingTimeSlot == null)
+            {
+                return NotFound();
+            }
+
+            if (!IsConcurrencyValid(existingTimeSlot.Version, updatedTimeSlot.Version))
+            {
+                existingTimeSlot = _context.TimeSlot.Find(updatedTimeSlot.Id);
+
+                ViewData["ConcurrencyError"] = "Concurrency conflict. Please resolve and try again.";
+
+                return RedirectToAction("ReserveVisit");
+            }
+
+            var loggedInPatient = _context.Patient.FirstOrDefault(p => p.Id == _accountService.PatientId);
+
+            if (loggedInPatient != null)
+            {
+                existingTimeSlot.Patient = loggedInPatient;
+                existingTimeSlot.Version = updatedTimeSlot.Version;
+
+                _context.SaveChanges();
+
+                return RedirectToAction("ReserveVisit");
+            }
 
             return RedirectToAction("ReserveVisit");
+        }
+
+        private static bool IsConcurrencyValid(byte[] original, byte[] incoming)
+        {
+            return original.SequenceEqual(incoming);
         }
     }
 }
